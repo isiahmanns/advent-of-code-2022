@@ -6,6 +6,12 @@ enum Play {
     case scissors
 }
 
+enum Outcome {
+    case win
+    case loss
+    case draw
+}
+
 typealias Round = (opponent: Play, user: Play)
 
 class Solution {
@@ -95,7 +101,56 @@ class Solution {
     }
 
     func runP2() -> Int {
-        return -1
+        let data = cleanData.map { round in
+            let outcome: Outcome
+
+            switch round.user {
+            case .rock:
+                outcome = .loss
+            case .paper:
+                outcome = .draw
+            case .scissors:
+                outcome = .win
+            }
+
+            return (opponent: round.opponent, outcome: outcome)
+        }
+
+        var score = 0
+
+        data.forEach { round in
+            switch round.opponent {
+            case .rock:
+                switch round.outcome {
+                case .loss:
+                    score += calculateScore(user: .scissors, opponent: .rock)
+                case .draw:
+                    score += calculateScore(user: .rock, opponent: .rock)
+                case .win:
+                    score += calculateScore(user: .paper, opponent: .rock)
+                }
+            case .paper:
+                switch round.outcome {
+                case .loss:
+                    score += calculateScore(user: .rock, opponent: .paper)
+                case .draw:
+                    score += calculateScore(user: .paper, opponent: .paper)
+                case .win:
+                    score += calculateScore(user: .scissors, opponent: .paper)
+                }
+            case .scissors:
+                switch round.outcome {
+                case .loss:
+                    score += calculateScore(user: .paper, opponent: .scissors)
+                case .draw:
+                    score += calculateScore(user: .scissors, opponent: .scissors)
+                case .win:
+                    score += calculateScore(user: .rock, opponent: .scissors)
+                }
+            }
+        }
+
+        return score
     }
 }
 
