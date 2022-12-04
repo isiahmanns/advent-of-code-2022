@@ -65,7 +65,12 @@ class Solution {
     }
 
     func runP2() -> Int {
-        return -1
+        return cleanData.reduce(0) { partialResult, pair in
+            let a = pair.first
+            let b = pair.second
+            let aOverlapsB = a.to >= b.from && a.from <= b.to
+            return aOverlapsB ? partialResult + 1 : partialResult
+        }
     }
 }
 
