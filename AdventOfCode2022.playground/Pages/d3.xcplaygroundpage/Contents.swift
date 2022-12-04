@@ -46,7 +46,20 @@ class Solution {
     }
 
     func runP2() -> Int {
-        return -1
+        return stride(from: 0, to: cleanData.count, by: 3)
+            .map { iterator in
+                Array(cleanData[iterator..<iterator + 3])
+            }
+            .map { triplet in
+                let intersection = triplet
+                    .reduce(Set(triplet[0])) { partialResult, rucksack in
+                        return partialResult.intersection(Set(rucksack))
+                    }
+
+                guard let commonItem = intersection.first else { fatalError() }
+                return score(character: commonItem)
+            }
+            .reduce(0, +)
     }
 }
 
