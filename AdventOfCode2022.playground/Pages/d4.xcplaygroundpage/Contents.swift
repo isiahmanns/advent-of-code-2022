@@ -24,7 +24,7 @@ class Solution {
         return data
             .split(separator: "\n")
             .map { row in
-                guard let match = row.wholeMatch(of: regexLiteral),
+                guard let match = try? regexLiteral.wholeMatch(in: row),
                       let elfAStart = Int(match.output.1),
                       let elfAEnd = Int(match.output.2),
                       let elfBStart = Int(match.output.3),
