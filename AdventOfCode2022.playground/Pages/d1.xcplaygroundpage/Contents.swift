@@ -2,6 +2,10 @@ import Foundation
 
 class Solution {
 
+    lazy var cleanData: [[Int]] = {
+        return clean(data: getData())
+    }()
+
     private func getData() -> String {
         guard let path = Bundle.main.path(forResource: "input", ofType: "txt"),
               let data = try? String.init(contentsOfFile: path) else {
@@ -25,19 +29,25 @@ class Solution {
             }
     }
 
-    private func process(data: [[Int]]) -> Int {
-        let sums = data.map { calorieGroup in
-            calorieGroup.reduce(0, +)
-        }
-
-        return sums.max() ?? 0
+    func runP1() -> Int {
+        return cleanData
+            .map { calorieGroup in
+                calorieGroup.reduce(0, +)
+            }
+            .max() ?? -1
     }
 
-    func run() -> Int {
-        let data = getData()
-        let cleanData = clean(data: data)
-        return process(data: cleanData)
+    func runP2() -> Int {
+        return cleanData
+            .map { calorieGroup in
+                calorieGroup.reduce(0, +)
+            }
+            .sorted(by: >)
+            .prefix(3)
+            .reduce(0, +)
     }
 }
 
-Solution().run()
+let solution = Solution()
+solution.runP1()
+solution.runP2()
