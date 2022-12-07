@@ -15,11 +15,9 @@ class Solution {
         return data
     }
 
-    func runP1() -> Int {
-        let dataStream = cleanData
-
-        for i in 4..<dataStream.count {
-            if Set(dataStream[i-4..<i]).count == 4 {
+    private func endOfFirstDistinctSet(of length: Int) -> Int {
+        for i in length..<cleanData.count {
+            if Set(cleanData[i-length..<i]).count == length {
                 return i
             }
         }
@@ -27,8 +25,12 @@ class Solution {
         fatalError()
     }
 
+    func runP1() -> Int {
+        return endOfFirstDistinctSet(of: 4)
+    }
+
     func runP2() -> Int {
-        return -1
+        return endOfFirstDistinctSet(of: 14)
     }
 }
 
