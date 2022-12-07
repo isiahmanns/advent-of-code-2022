@@ -37,7 +37,7 @@ class Solution {
             .dropFirst(1)
             .map { row in
                 stride(from: 0, to: row.count, by: 4).map { i in
-                    let crateIndex = row.index(row.startIndex, offsetBy: i+1)
+                    let crateIndex = i + 1
                     return row[crateIndex]
                 }
             }

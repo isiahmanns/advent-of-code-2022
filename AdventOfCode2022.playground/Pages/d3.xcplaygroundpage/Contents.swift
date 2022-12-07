@@ -66,11 +66,3 @@ class Solution {
 let solution = Solution()
 solution.runP1()
 solution.runP2()
-
-extension StringProtocol {
-    subscript(_ range: Range<Int>) -> SubSequence {
-        let lowerIndex = index(startIndex, offsetBy: range.lowerBound)
-        let upperIndex = index(startIndex, offsetBy: range.upperBound)
-        return self[lowerIndex..<upperIndex]
-    }
-}
