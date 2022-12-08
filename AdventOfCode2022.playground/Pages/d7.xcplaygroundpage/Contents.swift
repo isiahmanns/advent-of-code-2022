@@ -125,25 +125,44 @@ class Solution {
         return sum
     }
 
-    private func sumDirs(in folder: Folder, with sizeLimit: Int) -> Int {
+    private func sumDirs(in folder: Folder, limit sizeLimit: Int) -> Int {
         var sum = 0
 
         for item in folder.items.values where item is Folder {
-            print(item.name)
-
+            // print(item.name)
             let size = item.size
-            sum += (size <= sizeLimit ? size : 0) + sumDirs(in: item as! Folder, with: sizeLimit)
+            sum += (size <= sizeLimit ? size : 0) + sumDirs(in: item as! Folder, limit: sizeLimit)
         }
 
         return sum
     }
 
+    private func getFolders(in folder: Folder) -> [Folder] {
+        var sumFolders: [Folder] = []
+
+        for item in folder.items.values where item is Folder {
+            let item = item as! Folder
+            sumFolders += [item] + getFolders(in: item)
+        }
+
+        return sumFolders
+    }
+
     func runP1() -> Int {
-        return sumDirs(in: fileSystem.folder, with: 100000)
+        return sumDirs(in: fileSystem.folder, limit: 100_000)
     }
 
     func runP2() -> Int {
-        return -1
+        let availableDiskSpace = 70_000_000
+        let requiredFreeSpace = 30_000_000
+
+        let totalUsedSpace = fileSystem.folder.size
+        let availableFreeSpace = availableDiskSpace - totalUsedSpace
+        let minDeleteSpace = requiredFreeSpace - availableFreeSpace
+
+        return getFolders(in: fileSystem.folder)
+            .sorted(by: {$0.size < $1.size})
+            .first(where: {$0.size >= minDeleteSpace})?.size ?? -1
     }
 }
 
