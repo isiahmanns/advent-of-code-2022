@@ -1,15 +1,25 @@
 public class Simulation {
-    public var head: Coordinate = .origin {
-        didSet {
-            processHead()
+    public var head: Coordinate {
+        get { knots.first! }
+        set {
+            knots[0] = newValue
+            processKnots()
         }
     }
-    public var tail: Coordinate = .origin
-    public var tailPath: Set<Coordinate> = [.origin]
-    let moves: [Move]
 
-    public init(with moves: [Move]) {
+    public var tail: Coordinate {
+        get { knots.last! }
+        set { knots[knots.count - 1] = newValue }
+    }
+
+    public private(set) var tailPath: Set<Coordinate> = [.origin]
+    private let moves: [Move]
+    private var knots: [Coordinate]
+
+    public init(from moves: [Move], knotCount: Int = 2) {
+        precondition(knotCount >= 2)
         self.moves = moves
+        self.knots = Array.init(repeating: .origin, count: knotCount)
     }
 
     public func run() {
@@ -37,37 +47,50 @@ public class Simulation {
         }
     }
 
-    private func processHead() {
-        guard !head.isTouching(tail) else { return }
+    private func moveKnotsIfNeeded(leadIdx: Array.Index, followingIdx: Array.Index) {
+        let lead = knots[leadIdx]
+        var following = knots[followingIdx]
 
-        if head.col == tail.col {
-            if head.row > tail.row {
-                tail = tail.moveDown()
+        guard !lead.isTouching(following) else { return }
+
+        if lead.col == following.col {
+            if lead.row > following.row {
+                following = following.moveDown()
             } else {
-                tail = tail.moveUp()
+                following = following.moveUp()
             }
-        } else if head.row == tail.row {
-            if head.col > tail.col {
-                tail = tail.moveRight()
+        } else if lead.row == following.row {
+            if lead.col > following.col {
+                following = following.moveRight()
             } else {
-                tail = tail.moveLeft()
+                following = following.moveLeft()
             }
         } else {
-            if head.col > tail.col {
-                if head.row < tail.row {
-                    tail = tail.moveRight().moveUp()
+            if lead.col > following.col {
+                if lead.row < following.row {
+                    following = following.moveRight().moveUp()
                 } else {
-                    tail = tail.moveRight().moveDown()
+                    following = following.moveRight().moveDown()
                 }
             } else {
-                if head.row < tail.row {
-                    tail = tail.moveLeft().moveUp()
+                if lead.row < following.row {
+                    following = following.moveLeft().moveUp()
                 } else {
-                    tail = tail.moveLeft().moveDown()
+                    following = following.moveLeft().moveDown()
                 }
             }
         }
 
-        tailPath.insert(tail)
+        knots[followingIdx] = following
+
+        if following == tail {
+            tailPath.insert(tail)
+        }
+    }
+
+    private func processKnots() {
+        (1..<knots.count).forEach { i in
+            moveKnotsIfNeeded(leadIdx: i - 1, followingIdx: i)
+        }
     }
 }

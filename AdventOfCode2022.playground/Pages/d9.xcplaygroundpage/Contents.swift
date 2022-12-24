@@ -1,12 +1,6 @@
 import Foundation
 
 class Solution {
-
-    lazy var simulation: Simulation = {
-        let simulation = Simulation(with: cleanData)
-        simulation.run()
-        return simulation
-    }()
     
     lazy var cleanData: [Move] = {
         return clean(data: getData())
@@ -33,11 +27,15 @@ class Solution {
     }
 
     func runP1() -> Int {
+        let simulation = Simulation(from: cleanData, knotCount: 2)
+        simulation.run()
         return simulation.tailPath.count
     }
 
     func runP2() -> Int {
-        return -1
+        let simulation = Simulation(from: cleanData, knotCount: 10)
+        simulation.run()
+        return simulation.tailPath.count
     }
 }
 
