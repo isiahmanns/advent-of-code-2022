@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <playground version='6.0' target-platform='ios' buildActiveScheme='true' importAppTypes='true'>
     <pages>
-        <page name='d1'/>
-        <page name='d2'/>
-        <page name='d3'/>
-        <page name='d4'/>
-        <page name='d5'/>
-        <page name='d6'/>
-        <page name='d7'/>
-        <page name='d8'/>
-        <page name='d9'/>
+        <page name='d01'/>
+        <page name='d02'/>
+        <page name='d03'/>
+        <page name='d04'/>
+        <page name='d05'/>
+        <page name='d06'/>
+        <page name='d07'/>
+        <page name='d08'/>
+        <page name='d09'/>
         <page name='d10'/>
     </pages>
 </playground>
