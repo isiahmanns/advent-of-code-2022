@@ -1,88 +1,142 @@
-internal class Monkey {
-    internal var items: [Int]
-    internal var totalInspections: Int = 0
-    internal weak var delegate: MonkeyDelegate?
-    private var operation: (Int) -> Int
-    private var test: (Int) -> MonkeyIdx
-
-    internal init(items: [Int],
-                operation: @escaping (Int) -> Int,
-                test: @escaping (Int) -> MonkeyIdx) {
-        self.items = items
-        self.operation = operation
-        self.test = test
-    }
-
-    internal func takeTurn() {
-        defer { items = [] }
-        totalInspections += items.count
-        items.forEach { item in
-            let modifiedItem = operation(item) / 3
-            let monkeyIdx = test(modifiedItem)
-            delegate?.throwItem(modifiedItem, to: monkeyIdx)
-        }
-    }
-}
-
-internal protocol MonkeyDelegate: AnyObject {
-    func throwItem(_ item: Int, to: MonkeyIdx)
-}
-
 internal typealias MonkeyIdx = Int
 
-extension Monkey {
-    struct Factory {
-        static func createMonkiesFromInput() -> [Monkey] {
-            [
-                Monkey(items: [59, 65, 86, 56, 74, 57, 56],
-                       operation: { x in
-                           x * 17
-                       }, test: { x in
-                           x.isMultiple(of: 3) ? 3 : 6
-                       }),
-                Monkey(items: [63, 83, 50, 63, 56],
-                       operation: { x in
-                           x + 2
-                       }, test: { x in
-                           x.isMultiple(of: 13) ? 3 : 0
-                       }),
-                Monkey(items: [93, 79, 74, 55],
-                       operation: { x in
-                           x  + 1
-                       }, test: { x in
-                           x.isMultiple(of: 2) ? 0 : 1
-                       }),
-                Monkey(items: [86, 61, 67, 88, 94, 69, 56, 91],
-                       operation: { x in
-                           x + 7
-                       }, test: { x in
-                           x.isMultiple(of: 11) ? 6 : 7
-                       }),
-                Monkey(items: [76, 50, 51],
-                       operation: { x in
-                           x * x
-                       }, test: { x in
-                           x.isMultiple(of: 19) ? 2 : 5
-                       }),
-                Monkey(items: [77, 76],
-                       operation: { x in
-                           x + 8
-                       }, test: { x in
-                           x.isMultiple(of: 17) ? 2 : 1
-                       }),
-                Monkey(items: [74],
-                       operation: { x in
-                           x * 2
-                       }, test: { x in
-                           x.isMultiple(of: 5) ? 4 : 7
-                       }),
-                Monkey(items: [86, 85, 52, 86, 91, 95],
-                       operation: { x in
-                           x + 6
-                       }, test: { x in
-                           x.isMultiple(of: 7) ? 4 : 5
-                       })
-            ]
+internal protocol MonkeyDelegate: AnyObject {
+    func throwItem(_ item: any Integer, to: MonkeyIdx, from: any Monkey)
+}
+
+// MARK: - Wish we could use private vars in protocol definitions to enforce implementation rules, without opening access to client code.
+internal protocol Monkey: AnyObject {
+    associatedtype IntegerType: Integer
+
+    var items: [IntegerType] { get set }
+    var totalInspections: Int { get }
+    var delegate: MonkeyDelegate? { get set }
+
+    func takeTurn()
+}
+
+internal typealias MonkeyDependencyBigInt = (items: [BigInt],
+                                             operation: (BigInt) -> BigInt,
+                                             test: (BigInt) -> MonkeyIdx)
+
+internal typealias MonkeyDependencyNativeInt = (items: [Int],
+                                                operation: (Int) -> Int,
+                                                test: (Int) -> MonkeyIdx)
+
+internal struct MonkeyFactory {
+    static func createMonkies(withRelief reliefIsActive: Bool) -> [any Monkey] {
+        if reliefIsActive {
+            return DataSet.nativeInt.map { dependencyGroup in
+                DefaultMonkey(dependencies: dependencyGroup)
+            }
+        } else {
+            return DataSet.bigInt.map { dependencyGroup in
+                BigMonkey(dependencies: dependencyGroup)
+            }
         }
+    }
+
+    private enum DataSet {
+        static let bigInt: [MonkeyDependencyBigInt] = [
+            (items: [59, 65, 86, 56, 74, 57, 56].map { $0.bigInt },
+             operation: { x in
+                 x * 17.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 3.bigInt) ? 3 : 6
+             }),
+            (items: [63, 83, 50, 63, 56].map { $0.bigInt },
+             operation: { x in
+                 x + 2.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 13.bigInt) ? 3 : 0
+             }),
+            (items: [93, 79, 74, 55].map { $0.bigInt },
+             operation: { x in
+                 x + 1.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 2.bigInt) ? 0 : 1
+             }),
+            (items: [86, 61, 67, 88, 94, 69, 56, 91].map { $0.bigInt },
+             operation: { x in
+                 x + 7.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 11.bigInt) ? 6 : 7
+             }),
+            (items: [76, 50, 51].map { $0.bigInt },
+             operation: { x in
+                 x * x
+             }, test: { x in
+                 x.isMultiple(of: 19.bigInt) ? 2 : 5
+             }),
+            (items: [77, 76].map { $0.bigInt },
+             operation: { x in
+                 x + 8.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 17.bigInt) ? 2 : 1
+             }),
+            (items: [74].map { $0.bigInt },
+             operation: { x in
+                 x * 2.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 5.bigInt) ? 4 : 7
+             }),
+            (items: [86, 85, 52, 86, 91, 95].map { $0.bigInt },
+             operation: { x in
+                 x + 6.bigInt
+             }, test: { x in
+                 x.isMultiple(of: 7.bigInt) ? 4 : 5
+             })
+        ]
+
+        static let nativeInt: [MonkeyDependencyNativeInt] = [
+            (items: [59, 65, 86, 56, 74, 57, 56],
+             operation: { x in
+                 x * 17
+             }, test: { x in
+                 x.isMultiple(of: 3) ? 3 : 6
+             }),
+            (items: [63, 83, 50, 63, 56],
+             operation: { x in
+                 x + 2
+             }, test: { x in
+                 x.isMultiple(of: 13) ? 3 : 0
+             }),
+            (items: [93, 79, 74, 55],
+             operation: { x in
+                 x + 1
+             }, test: { x in
+                 x.isMultiple(of: 2) ? 0 : 1
+             }),
+            (items: [86, 61, 67, 88, 94, 69, 56, 91],
+             operation: { x in
+                 x + 7
+             }, test: { x in
+                 x.isMultiple(of: 11) ? 6 : 7
+             }),
+            (items: [76, 50, 51],
+             operation: { x in
+                 x * x
+             }, test: { x in
+                 x.isMultiple(of: 19) ? 2 : 5
+             }),
+            (items: [77, 76],
+             operation: { x in
+                 x + 8
+             }, test: { x in
+                 x.isMultiple(of: 17) ? 2 : 1
+             }),
+            (items: [74],
+             operation: { x in
+                 x * 2
+             }, test: { x in
+                 x.isMultiple(of: 5) ? 4 : 7
+             }),
+            (items: [86, 85, 52, 86, 91, 95],
+             operation: { x in
+                 x + 6
+             }, test: { x in
+                 x.isMultiple(of: 7) ? 4 : 5
+             })
+        ]
     }
 }
