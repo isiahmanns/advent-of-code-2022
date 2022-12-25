@@ -46,8 +46,13 @@ class Solution {
         return sumSignalStrength
     }
 
-    func runP2() -> Int {
-        return -1
+    func runP2() {
+        let screen = Screen()
+        let cpu = CPU()
+        cpu.delegate = screen
+
+        cpu.process(instructions: cleanData)
+        print(screen)
     }
 }
 

@@ -1,6 +1,7 @@
 public class CPU {
     private var register: Int = 1
     public private(set) var cycles: [Int] = []
+    public weak var delegate: CPUDelegate?
 
     public init() { }
 
@@ -16,6 +17,8 @@ public class CPU {
 
     private func performCycle() {
         cycles.append(register)
+        let cycleNo = cycles.count
+        delegate?.didPerformCycle(cycleNo, registerValue: register)
     }
 
     public func process(instructions: [Instruction]) {
