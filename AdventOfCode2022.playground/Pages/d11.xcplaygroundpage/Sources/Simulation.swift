@@ -1,31 +1,37 @@
-public class Simulation: MonkeyDelegate {
+public class Simulation {
 
-    private let monkies: [Monkey]
+    private let monkies: [any Monkey]
     private let rounds: Int
+    private let reliefIsActive: Bool
 
-    public init(rounds: Int) {
+    public init(rounds: Int, withRelief reliefIsActive: Bool) {
         self.rounds = rounds
-        self.monkies = Monkey.Factory.createMonkiesFromInput()
+        self.reliefIsActive = reliefIsActive
+        self.monkies = MonkeyFactory.createMonkies()
         self.monkies.forEach { monkey in
             monkey.delegate = self
         }
     }
 
-    internal func throwItem(_ item: Int, to: MonkeyIdx) {
-        monkies[to].items.append(item)
-    }
-
     public func run() {
         (0..<rounds).forEach { _ in
             monkies.forEach { monkey in
-                monkey.takeTurn()
+                monkey.takeTurn(withRelief: reliefIsActive)
             }
         }
     }
 
-    public func totalInpections() -> [Int] {
+    public func totalInspections() -> [Int] {
         monkies.map { monkey in
             monkey.totalInspections
         }
+    }
+}
+
+extension Simulation: MonkeyDelegate {
+    func throwItem(_ item: Int,
+                   to destMonkeyIdx: MonkeyIdx,
+                   from origMonkey: any Monkey) {
+        monkies[destMonkeyIdx].receiveItem(item)
     }
 }
